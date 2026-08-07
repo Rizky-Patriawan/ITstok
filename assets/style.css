@@ -193,6 +193,16 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
 .custom-select-option:last-child { border-bottom: none; }
 .custom-select-option:hover { background: var(--bg); }
 .custom-select-option.hidden { display: none; }
+.custom-select-option.active { font-weight: 600; color: var(--primary); }
+.aksi-popup { min-width: 120px; }
+
+.btn-icon {
+  background: none; border: 1px solid var(--border); border-radius: 6px;
+  width: 30px; height: 30px; cursor: pointer; font-size: 0.95rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+}
+.btn-icon:hover { background: var(--bg); color: var(--text); }
 
 /* ---------- Filters ---------- */
 .filter-bar { display: flex; gap: 0.6rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
