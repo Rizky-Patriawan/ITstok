@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $kode = trim($_POST['kode'] ?? '');
 $nama = trim($_POST['nama'] ?? '');
 $model = trim($_POST['model'] ?? '');
+$lokasi = trim($_POST['lokasi'] ?? '');
 $kategori = trim($_POST['kategori'] ?? '');
 $satuan = trim($_POST['satuan'] ?? '') ?: 'Unit';
 $stokMin = max(0, (int) ($_POST['stok_min'] ?? 0));
@@ -53,9 +54,9 @@ try {
     $db->beginTransaction();
 
     $stmt = $db->prepare(
-        'INSERT INTO barang (kode, nama, model, kategori, satuan, stok, stok_min, kondisi) VALUES (?, ?, ?, ?, ?, 0, ?, ?)'
+        'INSERT INTO barang (kode, nama, model, lokasi, kategori, satuan, stok, stok_min, kondisi) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)'
     );
-    $stmt->execute([$kode, $nama, $model, $kategori, $satuan, $stokMin, $kondisi]);
+    $stmt->execute([$kode, $nama, $model, $lokasi, $kategori, $satuan, $stokMin, $kondisi]);
     $barangId = (int) $db->lastInsertId();
 
     $stmt = $db->prepare(
