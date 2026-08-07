@@ -12,6 +12,8 @@ $totalUnit = (int) $db->query('SELECT COALESCE(SUM(stok), 0) FROM barang')->fetc
 $totalMasuk = (int) $db->query('SELECT COUNT(*) FROM barang_masuk')->fetchColumn();
 $totalKeluar = (int) $db->query('SELECT COUNT(*) FROM barang_keluar')->fetchColumn();
 
+$sort = in_array($_GET['sort'] ?? '', ['kode', 'nama'], true) ? $_GET['sort'] : 'nama';
+
 $params = [];
 $where = '';
 if ($search !== '') {
@@ -28,40 +30,33 @@ $stmt = $db->prepare(
      LEFT JOIN (SELECT barang_id, SUM(jumlah) AS total_masuk FROM barang_masuk GROUP BY barang_id) m ON m.barang_id = b.id
      LEFT JOIN (SELECT barang_id, SUM(jumlah) AS total_keluar FROM barang_keluar GROUP BY barang_id) k ON k.barang_id = b.id
      $where
-     ORDER BY b.nama ASC"
+     ORDER BY b.$sort ASC"
 );
 $stmt->execute($params);
 $rows = $stmt->fetchAll();
 
-$pageTitle = 'Laporan Stok';
+$pageTitle = 'Laporan Pergerakan Stok';
 $activeNav = 'laporan';
 require __DIR__ . '/includes/layout_start.php';
 ?>
 
-
-<div class="stat-grid">
-    <div class="stat-card">
-        <div class="stat-label">Total Jenis Barang</div>
-        <div class="stat-value" style="color:var(--primary)"><?= $totalJenis ?></div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Total Unit Stok</div>
-        <div class="stat-value" style="color:#2563eb"><?= $totalUnit ?></div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Transaksi Masuk</div>
-        <div class="stat-value" style="color:var(--success)"><?= $totalMasuk ?></div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Transaksi Keluar</div>
-        <div class="stat-value" style="color:var(--warning)"><?= $totalKeluar ?></div>
-    </div>
-</div>
-
 <div class="card">
     <form method="get" class="filter-bar">
         <input type="text" name="q" class="search-box" placeholder="Cari nama, kode, model..." value="<?= e($search) ?>">
+        <input type="hidden" name="sort" value="<?= e($sort) ?>">
         <button type="submit" class="btn btn-secondary">Cari</button>
+        <div class="custom-select-wrap" style="min-width:160px">
+            <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupSort', this)">
+                <span>Urutan: <strong><?= $sort === 'kode' ? 'Kode' : 'Nama' ?></strong></span>
+                <span class="select-arrow">&#9660;</span>
+            </button>
+            <div class="custom-select-popup hidden" id="popupSort">
+                <div class="custom-select-options">
+                    <div class="custom-select-option <?= $sort === 'nama' ? 'active' : '' ?>" onclick="pilihSort('nama')">Nama Barang</div>
+                    <div class="custom-select-option <?= $sort === 'kode' ? 'active' : '' ?>" onclick="pilihSort('kode')">Kode Barang</div>
+                </div>
+            </div>
+        </div>
         <span class="text-muted" style="font-size:0.85rem"><?= count($rows) ?> item</span>
     </form>
 
@@ -69,7 +64,7 @@ require __DIR__ . '/includes/layout_start.php';
         <table>
             <thead>
                 <tr>
-                    <th>Kode</th><th>Nama Barang</th><th>Model</th><th>Kategori</th>
+                    <th>Kode</th><th>Nama Barang (Merek)</th><th>Model</th><th>Kategori</th>
                     <th>Total Masuk</th><th>Total Keluar</th><th>Stok Saat Ini</th>
                 </tr>
             </thead>
@@ -94,3 +89,10 @@ require __DIR__ . '/includes/layout_start.php';
 </div>
 
 <?php require __DIR__ . '/includes/layout_end.php'; ?>
+<script>
+function pilihSort(val) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', val);
+    window.location.href = url.toString();
+}
+</script>
