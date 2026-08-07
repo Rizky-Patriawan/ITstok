@@ -27,7 +27,6 @@ require __DIR__ . '/includes/layout_start.php';
     <div class="alert alert-success">Transaksi barang masuk berhasil disimpan.</div>
 <?php endif; ?>
 
-
 <div class="dash-grid">
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
@@ -91,17 +90,25 @@ require __DIR__ . '/includes/layout_start.php';
 
         <!-- Mode: Barang Baru -->
         <form method="post" action="barang_baru_save.php" id="formBaru" class="<?= $modeAwal !== 'baru' ? 'hidden' : '' ?>">
-            <div class="form-group">
-                <label>Kode Barang <span class="required">*</span></label>
-                <input type="text" name="kode" required maxlength="50">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kode Barang <span class="required">*</span></label>
+                    <input type="text" name="kode" required maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label>Nama Barang (Merek) <span class="required">*</span></label>
+                    <input type="text" name="nama" required maxlength="255">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Nama Barang (Merek) <span class="required">*</span></label>
-                <input type="text" name="nama" required maxlength="255">
-            </div>
-            <div class="form-group">
-                <label>Model</label>
-                <input type="text" name="model" maxlength="255">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Model</label>
+                    <input type="text" name="model" maxlength="255">
+                </div>
+                <div class="form-group">
+                    <label>Lokasi</label>
+                    <input type="text" name="lokasi" maxlength="100" placeholder="Contoh: Rak A1">
+                </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
