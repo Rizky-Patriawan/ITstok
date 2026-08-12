@@ -6,6 +6,8 @@ $user = requireLogin();
 $db = getDb();
 
 $barangList = $db->query('SELECT id, kode, nama, model, satuan, stok FROM barang ORDER BY nama ASC')->fetchAll();
+$penerimaList = $db->query("SELECT DISTINCT penerima FROM barang_keluar WHERE penerima != '' ORDER BY penerima ASC")->fetchAll(PDO::FETCH_COLUMN);
+$departemenList = $db->query("SELECT DISTINCT departemen FROM barang_keluar WHERE departemen != '' ORDER BY departemen ASC")->fetchAll(PDO::FETCH_COLUMN);
 
 $terbaru = $db->query(
     "SELECT bk.*, b.nama AS nama_barang, b.model, b.satuan
@@ -70,11 +72,63 @@ require __DIR__ . '/includes/layout_start.php';
             </div>
             <div class="form-group">
                 <label>Nama Penerima <span class="required">*</span></label>
-                <input type="text" name="penerima" required maxlength="255" placeholder="Nama lengkap penerima">
+                <div class="custom-select-wrap">
+                    <input type="hidden" name="penerima" id="penerimaValue" required>
+                    <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupPenerima', this)">
+                        <span id="penerimaLabel">— Pilih atau isi baru —</span>
+                        <span class="select-arrow">&#9660;</span>
+                    </button>
+                    <div class="custom-select-popup hidden" id="popupPenerima">
+                        <div class="suggest-new-row">
+                            <input type="text" class="suggest-new-input" id="penerimaBaruInput"
+                                   placeholder="Nama penerima baru..." maxlength="255"
+                                   onclick="event.stopPropagation()" oninput="event.stopPropagation()">
+                            <button type="button" class="suggest-new-btn"
+                                    onclick="event.stopPropagation(); pilihSuggest('penerimaBaruInput', 'penerimaValue', 'penerimaLabel', 'popupPenerima')">+</button>
+                        </div>
+                        <div class="custom-select-options">
+                            <?php foreach ($penerimaList as $p): ?>
+                                <div class="custom-select-option"
+                                     onclick="pilihSuggestOption(this, 'penerimaValue', 'penerimaLabel', 'popupPenerima')">
+                                    <?= e($p) ?>
+                                </div>
+                            <?php endforeach; ?>
+                            <?php if (empty($penerimaList)): ?>
+                                <div class="text-muted" style="padding:0.6rem 0.75rem;font-size:0.85rem">Belum ada penerima tersimpan</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label>Departemen <span class="required">*</span></label>
-                <input type="text" name="departemen" required maxlength="100" placeholder="Nama departemen">
+                <div class="custom-select-wrap">
+                    <input type="hidden" name="departemen" id="departemenValue" required>
+                    <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupDepartemen', this)">
+                        <span id="departemenLabel">— Pilih atau isi baru —</span>
+                        <span class="select-arrow">&#9660;</span>
+                    </button>
+                    <div class="custom-select-popup hidden" id="popupDepartemen">
+                        <div class="suggest-new-row">
+                            <input type="text" class="suggest-new-input" id="departemenBaruInput"
+                                   placeholder="Departemen baru..." maxlength="100"
+                                   onclick="event.stopPropagation()" oninput="event.stopPropagation()">
+                            <button type="button" class="suggest-new-btn"
+                                    onclick="event.stopPropagation(); pilihSuggest('departemenBaruInput', 'departemenValue', 'departemenLabel', 'popupDepartemen')">+</button>
+                        </div>
+                        <div class="custom-select-options">
+                            <?php foreach ($departemenList as $d): ?>
+                                <div class="custom-select-option"
+                                     onclick="pilihSuggestOption(this, 'departemenValue', 'departemenLabel', 'popupDepartemen')">
+                                    <?= e($d) ?>
+                                </div>
+                            <?php endforeach; ?>
+                            <?php if (empty($departemenList)): ?>
+                                <div class="text-muted" style="padding:0.6rem 0.75rem;font-size:0.85rem">Belum ada departemen tersimpan</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label>Keperluan / Tujuan <span class="required">*</span></label>
@@ -101,5 +155,23 @@ require __DIR__ . '/includes/layout_start.php';
         <?php endforeach; ?>
     </div>
 </div>
+
+<script>
+function pilihSuggestOption(optEl, inputId, labelId, popupId) {
+    const val = optEl.textContent.trim();
+    document.getElementById(inputId).value = val;
+    document.getElementById(labelId).textContent = val;
+    document.getElementById(popupId).classList.add('hidden');
+}
+
+function pilihSuggest(inputNewId, inputId, labelId, popupId) {
+    const val = document.getElementById(inputNewId).value.trim();
+    if (!val) return;
+    document.getElementById(inputId).value = val;
+    document.getElementById(labelId).textContent = val;
+    document.getElementById(inputNewId).value = '';
+    document.getElementById(popupId).classList.add('hidden');
+}
+</script>
 
 <?php require __DIR__ . '/includes/layout_end.php'; ?>
