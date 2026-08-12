@@ -14,14 +14,16 @@ $like = '%' . $search . '%';
 
 $sqlMasuk =
     "SELECT 'masuk' AS tipe, bm.id, bm.tanggal, b.nama AS nama_barang, b.kode, bm.jumlah,
-            bm.supplier AS pihak, bm.keterangan AS catatan, u.username AS petugas
+            bm.supplier AS pihak, bm.keterangan AS catatan, u.username AS petugas,
+            bm.created_at AS created_at
      FROM barang_masuk bm
      JOIN barang b ON b.id = bm.barang_id
      LEFT JOIN users u ON u.id = bm.petugas_id";
 
 $sqlKeluar =
     "SELECT 'keluar' AS tipe, bk.id, bk.tanggal, b.nama AS nama_barang, b.kode, bk.jumlah,
-            bk.penerima AS pihak, CONCAT(bk.departemen, ' — ', bk.keperluan) AS catatan, u.username AS petugas
+            bk.penerima AS pihak, CONCAT(bk.departemen, ' — ', bk.keperluan) AS catatan, u.username AS petugas,
+            bk.created_at AS created_at
      FROM barang_keluar bk
      JOIN barang b ON b.id = bk.barang_id
      LEFT JOIN users u ON u.id = bk.petugas_id";
@@ -41,7 +43,7 @@ if ($tipe === 'masuk') {
 } else {
     $sqlMasukFiltered = $sqlMasuk . $searchClause;
     $sqlKeluarFiltered = $sqlKeluar . $searchClause;
-    $sql = "($sqlMasukFiltered) UNION ALL ($sqlKeluarFiltered) ORDER BY tanggal DESC, id DESC";
+    $sql = "($sqlMasukFiltered) UNION ALL ($sqlKeluarFiltered) ORDER BY created_at DESC";
     if ($search !== '') { $params = [$like, $like, $like, $like]; }
 }
 
