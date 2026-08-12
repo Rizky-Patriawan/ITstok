@@ -76,9 +76,7 @@ require __DIR__ . '/includes/layout_start.php';
                     <span class="activity-name"><?= e($b['nama']) ?></span>
                     <span class="badge badge-warn"><?= (int) $b['stok'] ?> Unit</span>
                 </div>
-                <div class="activity-meta">Min: <?= (int) $b['stok_min'] ?> &middot; <?= e($b['kode']) ?></div>
-                <?php $pct = $b['stok_min'] > 0 ? min(100, (int) round($b['stok'] / $b['stok_min'] * 100)) : 100; ?>
-                <div class="low-stock-bar"><div class="low-stock-bar-fill" style="width:<?= $pct ?>%"></div></div>
+                <div class="activity-meta">Minimum: <?= (int) $b['stok_min'] ?> &middot; <?= e($b['kode']) ?></div>
             </div>
         <?php endforeach; ?>
     </div>
