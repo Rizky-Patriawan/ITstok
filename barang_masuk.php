@@ -7,6 +7,11 @@ $db = getDb();
 
 $barangList = $db->query('SELECT id, kode, nama, model, satuan, stok FROM barang ORDER BY nama ASC')->fetchAll();
 
+// Ambil daftar lokasi & kategori unik yang sudah ada di database
+$lokasiList = $db->query("SELECT DISTINCT lokasi FROM barang WHERE lokasi != '' ORDER BY lokasi ASC")->fetchAll(PDO::FETCH_COLUMN);
+$kategoriList = $db->query("SELECT DISTINCT kategori FROM barang WHERE kategori != '' ORDER BY kategori ASC")->fetchAll(PDO::FETCH_COLUMN);
+$supplierList = $db->query("SELECT DISTINCT supplier FROM barang_masuk WHERE supplier IS NOT NULL AND supplier != '' ORDER BY supplier ASC")->fetchAll(PDO::FETCH_COLUMN);
+
 $terbaru = $db->query(
     "SELECT bm.*, b.nama AS nama_barang, b.model, b.satuan
      FROM barang_masuk bm JOIN barang b ON b.id = bm.barang_id
@@ -43,10 +48,9 @@ require __DIR__ . '/includes/layout_start.php';
         <form method="post" action="barang_masuk_save.php" id="formStok" class="<?= $modeAwal !== 'stok' ? 'hidden' : '' ?>">
             <div class="form-group">
                 <label>Barang <span class="required">*</span></label>
-                <div class="custom-select-wrap" id="wrapBarangStok">
+                <div class="custom-select-wrap">
                     <input type="hidden" name="barang_id" id="barangIdStok" required>
-                    <button type="button" class="custom-select-trigger" id="triggerBarangStok"
-                            onclick="toggleCustomSelect('popupBarangStok', 'triggerBarangStok')">
+                    <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupBarangStok', this)">
                         <span id="labelBarangStok">— Pilih barang —</span>
                         <span class="select-arrow">&#9660;</span>
                     </button>
@@ -79,7 +83,33 @@ require __DIR__ . '/includes/layout_start.php';
             </div>
             <div class="form-group">
                 <label>Supplier / Vendor</label>
-                <input type="text" name="supplier" maxlength="255" placeholder="Nama perusahaan supplier">
+                <div class="custom-select-wrap">
+                    <input type="hidden" name="supplier" id="supplierStokValue">
+                    <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupSupplierStok', this)">
+                        <span id="supplierStokLabel">— Pilih atau isi baru —</span>
+                        <span class="select-arrow">&#9660;</span>
+                    </button>
+                    <div class="custom-select-popup hidden" id="popupSupplierStok">
+                        <div class="suggest-new-row">
+                            <input type="text" class="suggest-new-input" id="supplierStokBaruInput"
+                                   placeholder="Supplier baru..." maxlength="255"
+                                   onclick="event.stopPropagation()" oninput="event.stopPropagation()">
+                            <button type="button" class="suggest-new-btn"
+                                    onclick="event.stopPropagation(); pilihSuggest('supplierStokBaruInput', 'supplierStokValue', 'supplierStokLabel', 'popupSupplierStok')">+</button>
+                        </div>
+                        <div class="custom-select-options">
+                            <?php foreach ($supplierList as $sup): ?>
+                                <div class="custom-select-option"
+                                     onclick="pilihSuggestOption(this, 'supplierStokValue', 'supplierStokLabel', 'popupSupplierStok')">
+                                    <?= e($sup) ?>
+                                </div>
+                            <?php endforeach; ?>
+                            <?php if (empty($supplierList)): ?>
+                                <div class="text-muted" style="padding:0.6rem 0.75rem;font-size:0.85rem">Belum ada supplier tersimpan</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label>Keterangan</label>
@@ -93,10 +123,12 @@ require __DIR__ . '/includes/layout_start.php';
             <div class="form-row">
                 <div class="form-group">
                     <label>Kode Barang <span class="required">*</span></label>
-                    <input type="text" name="kode" required maxlength="50">
+                    <input type="text" name="kode" id="kodeBaruInput" required maxlength="50"
+                           onblur="cekKodeDuplikat(this)">
+                    <div class="field-hint" id="kodeHint" style="color:var(--danger)"></div>
                 </div>
                 <div class="form-group">
-                    <label>Nama Barang (Merek) <span class="required">*</span></label>
+                    <label>Nama Barang <span class="required">*</span></label>
                     <input type="text" name="nama" required maxlength="255">
                 </div>
             </div>
@@ -106,18 +138,74 @@ require __DIR__ . '/includes/layout_start.php';
                     <input type="text" name="model" maxlength="255">
                 </div>
                 <div class="form-group">
-                    <label>Lokasi</label>
-                    <input type="text" name="lokasi" maxlength="100" placeholder="Contoh: Rak A1">
+                    <label>Satuan</label>
+                    <input type="text" name="satuan" value="Unit" maxlength="50">
                 </div>
             </div>
             <div class="form-row">
+                <!-- Lokasi: dropdown + bisa isi baru -->
+                <div class="form-group">
+                    <label>Lokasi</label>
+                    <div class="custom-select-wrap">
+                        <input type="hidden" name="lokasi" id="lokasiValue">
+                        <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupLokasi', this)">
+                            <span id="lokasiLabel">— Pilih atau isi baru —</span>
+                            <span class="select-arrow">&#9660;</span>
+                        </button>
+                        <div class="custom-select-popup hidden" id="popupLokasi">
+                            <div class="suggest-new-row">
+                                <input type="text" class="suggest-new-input" id="lokasiBaruInput"
+                                       placeholder="Lokasi baru..." maxlength="100"
+                                       onclick="event.stopPropagation()"
+                                       oninput="event.stopPropagation()">
+                                <button type="button" class="suggest-new-btn"
+                                        onclick="event.stopPropagation(); pilihSuggest('lokasiBaruInput', 'lokasiValue', 'lokasiLabel', 'popupLokasi')">+</button>
+                            </div>
+                            <div class="custom-select-options" id="opsiLokasi">
+                                <?php foreach ($lokasiList as $lok): ?>
+                                    <div class="custom-select-option"
+                                         onclick="pilihSuggestOption(this, 'lokasiValue', 'lokasiLabel', 'popupLokasi')">
+                                        <?= e($lok) ?>
+                                    </div>
+                                <?php endforeach; ?>
+                                <?php if (empty($lokasiList)): ?>
+                                    <div class="text-muted" style="padding:0.6rem 0.75rem;font-size:0.85rem">Belum ada lokasi tersimpan</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Kategori: dropdown + bisa isi baru -->
                 <div class="form-group">
                     <label>Kategori</label>
-                    <input type="text" name="kategori" maxlength="100">
-                </div>
-                <div class="form-group">
-                    <label>Satuan</label>
-                    <input type="text" name="satuan" value="Unit" maxlength="50">
+                    <div class="custom-select-wrap">
+                        <input type="hidden" name="kategori" id="kategoriValue">
+                        <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupKategori', this)">
+                            <span id="kategoriLabel">— Pilih atau isi baru —</span>
+                            <span class="select-arrow">&#9660;</span>
+                        </button>
+                        <div class="custom-select-popup hidden" id="popupKategori">
+                            <div class="suggest-new-row">
+                                <input type="text" class="suggest-new-input" id="kategoriBaruInput"
+                                       placeholder="Kategori baru..." maxlength="100"
+                                       onclick="event.stopPropagation()"
+                                       oninput="event.stopPropagation()">
+                                <button type="button" class="suggest-new-btn"
+                                        onclick="event.stopPropagation(); pilihSuggest('kategoriBaruInput', 'kategoriValue', 'kategoriLabel', 'popupKategori')">+</button>
+                            </div>
+                            <div class="custom-select-options" id="opsiKategori">
+                                <?php foreach ($kategoriList as $kat): ?>
+                                    <div class="custom-select-option"
+                                         onclick="pilihSuggestOption(this, 'kategoriValue', 'kategoriLabel', 'popupKategori')">
+                                        <?= e($kat) ?>
+                                    </div>
+                                <?php endforeach; ?>
+                                <?php if (empty($kategoriList)): ?>
+                                    <div class="text-muted" style="padding:0.6rem 0.75rem;font-size:0.85rem">Belum ada kategori tersimpan</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="form-row">
@@ -153,11 +241,37 @@ require __DIR__ . '/includes/layout_start.php';
             </div>
             <div class="form-group">
                 <label>Supplier / Vendor</label>
-                <input type="text" name="supplier" maxlength="255" placeholder="Nama perusahaan supplier">
+                <div class="custom-select-wrap">
+                    <input type="hidden" name="supplier" id="supplierBaruValue">
+                    <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupSupplierBaru', this)">
+                        <span id="supplierBaruLabel">— Pilih atau isi baru —</span>
+                        <span class="select-arrow">&#9660;</span>
+                    </button>
+                    <div class="custom-select-popup hidden" id="popupSupplierBaru">
+                        <div class="suggest-new-row">
+                            <input type="text" class="suggest-new-input" id="supplierBaruBaruInput"
+                                   placeholder="Supplier baru..." maxlength="255"
+                                   onclick="event.stopPropagation()" oninput="event.stopPropagation()">
+                            <button type="button" class="suggest-new-btn"
+                                    onclick="event.stopPropagation(); pilihSuggest('supplierBaruBaruInput', 'supplierBaruValue', 'supplierBaruLabel', 'popupSupplierBaru')">+</button>
+                        </div>
+                        <div class="custom-select-options">
+                            <?php foreach ($supplierList as $sup): ?>
+                                <div class="custom-select-option"
+                                     onclick="pilihSuggestOption(this, 'supplierBaruValue', 'supplierBaruLabel', 'popupSupplierBaru')">
+                                    <?= e($sup) ?>
+                                </div>
+                            <?php endforeach; ?>
+                            <?php if (empty($supplierList)): ?>
+                                <div class="text-muted" style="padding:0.6rem 0.75rem;font-size:0.85rem">Belum ada supplier tersimpan</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label>Keterangan</label>
-                <textarea name="keterangan" maxlength="255" placeholder="Catatan tambahan (opsional)"></textarea>
+                <input type="text" name="keterangan" maxlength="255" placeholder="Catatan tambahan (opsional)">
             </div>
             <button type="submit" class="btn btn-primary btn-block">Simpan Barang &amp; Stok Awal</button>
         </form>
@@ -182,12 +296,42 @@ require __DIR__ . '/includes/layout_start.php';
 </div>
 
 <script>
+// Cek duplikat kode saat pindah field (blur)
+async function cekKodeDuplikat(input) {
+    const kode = input.value.trim();
+    const hint = document.getElementById('kodeHint');
+    if (!kode) { hint.textContent = ''; return; }
+    try {
+        const res = await fetch('api/cek_kode.php?kode=' + encodeURIComponent(kode));
+        const data = await res.json();
+        hint.textContent = data.exists ? '⚠️ Kode "' + kode + '" sudah digunakan.' : '';
+    } catch (e) { hint.textContent = ''; }
+}
+
 function setMode(mode) {
     document.getElementById('formStok').classList.toggle('hidden', mode !== 'stok');
     document.getElementById('formBaru').classList.toggle('hidden', mode !== 'baru');
     document.getElementById('btnStok').className = 'btn ' + (mode === 'stok' ? 'btn-primary' : 'btn-secondary');
     document.getElementById('btnBaru').className = 'btn ' + (mode === 'baru' ? 'btn-primary' : 'btn-secondary');
     closeAllCustomSelects();
+}
+
+// Pilih dari list yang sudah ada
+function pilihSuggestOption(optEl, inputId, labelId, popupId) {
+    const val = optEl.textContent.trim();
+    document.getElementById(inputId).value = val;
+    document.getElementById(labelId).textContent = val;
+    document.getElementById(popupId).classList.add('hidden');
+}
+
+// Pakai nilai dari input "baru" lalu tutup popup
+function pilihSuggest(inputNewId, inputId, labelId, popupId) {
+    const val = document.getElementById(inputNewId).value.trim();
+    if (!val) return;
+    document.getElementById(inputId).value = val;
+    document.getElementById(labelId).textContent = val;
+    document.getElementById(inputNewId).value = '';
+    document.getElementById(popupId).classList.add('hidden');
 }
 </script>
 
