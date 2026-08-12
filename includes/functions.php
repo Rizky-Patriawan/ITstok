@@ -64,7 +64,7 @@ function getDashboardStats(PDO $db): array
 
     $stokRendah = $db->query(
         'SELECT id, kode, nama, stok, stok_min FROM barang
-         WHERE stok <= stok_min ORDER BY stok ASC LIMIT 10'
+         WHERE stok < stok_min ORDER BY stok ASC LIMIT 10'
     )->fetchAll();
 
     $aktivitasTerbaru = $db->query(
