@@ -58,7 +58,7 @@ require __DIR__ . '/includes/layout_start.php';
         <table>
             <thead>
                 <tr>
-                    <th>Kode</th><th>Nama Barang (Merek)</th><th>Model</th><th>Kategori</th>
+                    <th>Kode</th><th>Nama Barang </th><th>Model</th><th>Kategori</th>
                     <th>Lokasi</th><th>Stok Min</th><th>Stok</th><th>Satuan</th><th>Kondisi</th><th></th>
                 </tr>
             </thead>
@@ -75,23 +75,21 @@ require __DIR__ . '/includes/layout_start.php';
                         <td><?= e($b['satuan']) ?></td>
                         <td><?= kondisiBadge($b['kondisi']) ?></td>
                         <td>
-                            <!-- Tombol pensil → popup mini edit/hapus -->
-                            <div class="custom-select-wrap" style="display:inline-block">
+                            <div class="aksi-wrap" style="display:inline-block;position:relative">
                                 <button type="button" class="btn-icon" title="Aksi"
-                                        onclick="toggleCustomSelect('aksiPopup<?= (int) $b['id'] ?>', this)">&#9998;</button>
-                                <div class="custom-select-popup aksi-popup hidden" id="aksiPopup<?= (int) $b['id'] ?>">
-                                    <div class="custom-select-options">
-                                        <div class="custom-select-option"
-                                             onclick="closeAllCustomSelects(); editBarang(<?= json_encode($b, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)">
-                                            ✏️ Edit
-                                        </div>
-                                        <?php if ($user['role'] === 'admin'): ?>
-                                            <div class="custom-select-option text-danger"
-                                                 onclick="closeAllCustomSelects(); hapusBarang(<?= (int) $b['id'] ?>, '<?= e($b['nama']) ?>')">
-                                                🗑 Hapus
-                                            </div>
-                                        <?php endif; ?>
+                                        onclick="event.stopPropagation(); toggleAksiPopup('aksiPopup<?= (int) $b['id'] ?>', this)">&#9998;</button>
+                                <div class="aksi-popup hidden" id="aksiPopup<?= (int) $b['id'] ?>">
+                                    <div onclick="event.stopPropagation(); closeAllAksiPopups();"
+                                         data-edit-barang="<?= htmlspecialchars(json_encode($b, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8') ?>"
+                                         onmousedown="editBarang(JSON.parse(this.dataset.editBarang))">
+                                         Edit
                                     </div>
+                                    <?php if ($user['role'] === 'admin'): ?>
+                                        <div class="text-danger"
+                                             onclick="event.stopPropagation(); closeAllAksiPopups(); hapusBarang(<?= (int) $b['id'] ?>, '<?= e($b['nama']) ?>')">
+                                             Hapus
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </td>
@@ -125,7 +123,7 @@ require __DIR__ . '/includes/layout_start.php';
                     <input type="text" name="kode" id="edit_kode" required maxlength="50">
                 </div>
                 <div class="form-group">
-                    <label>Nama Barang (Merek) <span class="required">*</span></label>
+                    <label>Nama Barang <span class="required">*</span></label>
                     <input type="text" name="nama" id="edit_nama" required maxlength="255">
                 </div>
             </div>
