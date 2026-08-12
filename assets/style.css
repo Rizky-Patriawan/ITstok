@@ -186,15 +186,43 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
   width: 100%; padding: 0.5rem 0.75rem; border: none; border-bottom: 1px solid var(--border);
   font-size: 0.88rem; font-family: inherit; outline: none; background: var(--bg);
 }
-.custom-select-options { max-height: 240px; overflow-y: auto; }
+.custom-select-options { max-height: 200px; overflow-y: auto; }
 .custom-select-option {
   padding: 0.65rem 0.75rem; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid var(--border);
 }
 .custom-select-option:last-child { border-bottom: none; }
 .custom-select-option:hover { background: var(--bg); }
 .custom-select-option.hidden { display: none; }
+
+/* Baris input baru di atas list (untuk lokasi & kategori) */
+.suggest-new-row {
+  display: flex; align-items: center; gap: 0.4rem; flex-wrap: nowrap;
+  padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.suggest-new-input {
+  flex: 1; min-width: 0; max-width: calc(100% - 40px); padding: 0.35rem 0.5rem; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 0.85rem; font-family: inherit; outline: none; background: var(--surface);
+}
+.suggest-new-input:focus { border-color: var(--primary); }
+.suggest-new-btn {
+  width: 26px; height: 26px; border-radius: 6px; border: none; flex-shrink: 0;
+  background: var(--primary); color: #fff; font-size: 1.1rem; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.suggest-new-btn:hover { background: var(--primary-dark); }
 .custom-select-option.active { font-weight: 600; color: var(--primary); }
-.aksi-popup { min-width: 120px; }
+.aksi-popup {
+  position: absolute; top: 105%; right: 0; z-index: 200;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(15,23,42,0.12); overflow: hidden; min-width: 120px;
+}
+.aksi-popup div {
+  padding: 0.6rem 0.85rem; cursor: pointer; font-size: 0.88rem;
+  border-bottom: 1px solid var(--border);
+}
+.aksi-popup div:last-child { border-bottom: none; }
+.aksi-popup div:hover { background: var(--bg); }
 
 .btn-icon {
   background: none; border: 1px solid var(--border); border-radius: 6px;
