@@ -25,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Data master barang
-$kode = trim($_POST['kode'] ?? '');
 $nama = trim($_POST['nama'] ?? '');
 $model = trim($_POST['model'] ?? '');
 $lokasi = trim($_POST['lokasi'] ?? '');
@@ -40,8 +39,8 @@ $tanggal = $_POST['tanggal'] ?? '';
 $supplier = trim($_POST['supplier'] ?? '');
 $keterangan = trim($_POST['keterangan'] ?? '');
 
-if ($kode === '' || $nama === '') {
-    redirectWithError('Kode dan nama barang wajib diisi');
+if ($nama === '') {
+    redirectWithError('Nama barang wajib diisi');
 }
 if ($jumlah <= 0) {
     redirectWithError('Jumlah harus lebih dari 0');
@@ -50,8 +49,23 @@ if ($tanggal === '' || !DateTime::createFromFormat('Y-m-d', $tanggal)) {
     redirectWithError('Tanggal tidak valid');
 }
 
+// Generate kode otomatis format IT-XXXX berdasarkan nomor urut tertinggi
+// yang sudah ada di database. Aman dari race condition karena INSERT dengan
+// UNIQUE constraint akan gagal kalau kode bentrok, dan kita coba lagi.
+function generateKode(PDO $db): string
+{
+    $row = $db->query(
+        "SELECT kode FROM barang WHERE kode REGEXP '^IT-[0-9]+$' ORDER BY CAST(SUBSTRING(kode, 4) AS UNSIGNED) DESC LIMIT 1"
+    )->fetch(PDO::FETCH_ASSOC);
+
+    $next = $row ? ((int) substr($row['kode'], 3)) + 1 : 1;
+    return 'IT-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+}
+
 try {
     $db->beginTransaction();
+
+    $kode = generateKode($db);
 
     $stmt = $db->prepare(
         'INSERT INTO barang (kode, nama, model, lokasi, kategori, satuan, stok, stok_min, kondisi) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)'
