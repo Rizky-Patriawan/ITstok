@@ -122,24 +122,12 @@ require __DIR__ . '/includes/layout_start.php';
         <form method="post" action="barang_baru_save.php" id="formBaru" class="<?= $modeAwal !== 'baru' ? 'hidden' : '' ?>">
             <div class="form-row">
                 <div class="form-group">
-                    <label>Kode Barang <span class="required">*</span></label>
-                    <input type="text" name="kode" id="kodeBaruInput" required maxlength="50"
-                           onblur="cekKodeDuplikat(this)">
-                    <div class="field-hint" id="kodeHint" style="color:var(--danger)"></div>
-                </div>
-                <div class="form-group">
                     <label>Nama Barang <span class="required">*</span></label>
                     <input type="text" name="nama" required maxlength="255">
                 </div>
-            </div>
-            <div class="form-row">
                 <div class="form-group">
                     <label>Model</label>
                     <input type="text" name="model" maxlength="255">
-                </div>
-                <div class="form-group">
-                    <label>Satuan</label>
-                    <input type="text" name="satuan" value="Unit" maxlength="50">
                 </div>
             </div>
             <div class="form-row">
@@ -210,8 +198,8 @@ require __DIR__ . '/includes/layout_start.php';
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Stok Minimum</label>
-                    <input type="number" name="stok_min" value="5" min="0">
+                    <label>Satuan</label>
+                    <input type="text" name="satuan" value="Unit" maxlength="50">
                 </div>
                 <div class="form-group">
                     <label>Kondisi</label>
@@ -231,12 +219,12 @@ require __DIR__ . '/includes/layout_start.php';
             <hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">
             <div class="form-row">
                 <div class="form-group">
-                    <label>Jumlah (stok awal) <span class="required">*</span></label>
-                    <input type="number" name="jumlah" min="1" required>
+                    <label>Stok Minimum</label>
+                    <input type="number" name="stok_min" value="5" min="0">
                 </div>
                 <div class="form-group">
-                    <label>Tanggal Terima <span class="required">*</span></label>
-                    <input type="date" name="tanggal" required value="<?= date('Y-m-d') ?>">
+                    <label>Jumlah (stok awal) <span class="required">*</span></label>
+                    <input type="number" name="jumlah" min="1" required>
                 </div>
             </div>
             <div class="form-group">
@@ -273,7 +261,15 @@ require __DIR__ . '/includes/layout_start.php';
                 <label>Keterangan</label>
                 <input type="text" name="keterangan" maxlength="255" placeholder="Catatan tambahan (opsional)">
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Simpan Barang &amp; Stok Awal</button>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tanggal Terima <span class="required">*</span></label>
+                    <input type="date" name="tanggal" required value="<?= date('Y-m-d') ?>">
+                </div>
+                <div class="form-group" style="display:flex;align-items:flex-end">
+                    <button type="submit" class="btn btn-primary" style="width:100%">Simpan Barang &amp; Stok Awal</button>
+                </div>
+            </div>
         </form>
     </div>
 
@@ -296,18 +292,6 @@ require __DIR__ . '/includes/layout_start.php';
 </div>
 
 <script>
-// Cek duplikat kode saat pindah field (blur)
-async function cekKodeDuplikat(input) {
-    const kode = input.value.trim();
-    const hint = document.getElementById('kodeHint');
-    if (!kode) { hint.textContent = ''; return; }
-    try {
-        const res = await fetch('api/cek_kode.php?kode=' + encodeURIComponent(kode));
-        const data = await res.json();
-        hint.textContent = data.exists ? '⚠️ Kode "' + kode + '" sudah digunakan.' : '';
-    } catch (e) { hint.textContent = ''; }
-}
-
 function setMode(mode) {
     document.getElementById('formStok').classList.toggle('hidden', mode !== 'stok');
     document.getElementById('formBaru').classList.toggle('hidden', mode !== 'baru');
