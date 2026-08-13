@@ -117,15 +117,13 @@ require __DIR__ . '/includes/layout_start.php';
         </div>
         <form method="post" action="barang_save.php">
             <input type="hidden" name="id" id="edit_id">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Kode Barang <span class="required">*</span></label>
-                    <input type="text" name="kode" id="edit_kode" required maxlength="50">
-                </div>
-                <div class="form-group">
+            <div class="form-group">
+                <label>Kode Barang</label>
+                <div class="field-hint" id="edit_kode_display" style="font-size:0.95rem;font-weight:600;padding:0.4rem 0;color:var(--text)"></div>
+            </div>
+            <div class="form-group">
                     <label>Nama Barang <span class="required">*</span></label>
                     <input type="text" name="nama" id="edit_nama" required maxlength="255">
-                </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -147,13 +145,7 @@ require __DIR__ . '/includes/layout_start.php';
                     <input type="text" name="satuan" id="edit_satuan" maxlength="50">
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Stok Minimum</label>
-                    <input type="number" name="stok_min" id="edit_stok_min" min="0">
-                    <div class="field-hint">Stok hanya berubah lewat Barang Masuk/Keluar.</div>
-                </div>
-                <div class="form-group">
+            <div class="form-group">
                     <label>Kondisi</label>
                     <div style="display:flex;gap:0.4rem;margin-top:0.35rem;flex-wrap:wrap">
                         <?php foreach (['baik' => 'Baik', 'rusak' => 'Rusak', 'servis' => 'Servis'] as $val => $lbl): ?>
@@ -162,7 +154,6 @@ require __DIR__ . '/includes/layout_start.php';
                             </label>
                         <?php endforeach; ?>
                     </div>
-                </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Batal</button>
@@ -175,13 +166,12 @@ require __DIR__ . '/includes/layout_start.php';
 <script>
 function editBarang(b) {
     document.getElementById('edit_id').value = b.id;
-    document.getElementById('edit_kode').value = b.kode;
+    document.getElementById('edit_kode_display').textContent = b.kode;
     document.getElementById('edit_nama').value = b.nama;
     document.getElementById('edit_model').value = b.model;
     document.getElementById('edit_lokasi').value = b.lokasi || '';
     document.getElementById('edit_kategori').value = b.kategori;
     document.getElementById('edit_satuan').value = b.satuan;
-    document.getElementById('edit_stok_min').value = b.stok_min;
     const radio = document.getElementById('edit_kondisi_' + b.kondisi);
     if (radio) radio.checked = true;
     openModal('editModal');
