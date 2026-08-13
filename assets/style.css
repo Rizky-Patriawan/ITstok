@@ -113,11 +113,10 @@ a { color: inherit; text-decoration: none; }
 
 .low-stock-row { padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
 .low-stock-row:last-child { border-bottom: none; }
-.low-stock-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 0.4rem; overflow: hidden; }
-.low-stock-bar-fill { height: 100%; background: var(--warning); }
+
 
 /* ---------- Table ---------- */
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; border-radius: var(--radius); }
 table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 thead th {
   text-align: left; padding: 0.6rem 0.75rem; background: var(--bg);
@@ -149,8 +148,7 @@ select, textarea {
 textarea { resize: vertical; min-height: 70px; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
 .field-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem; }
-.field-readonly { background: var(--bg); color: var(--text-muted); }
-.error-text { color: var(--danger); font-size: 0.8rem; margin-top: 0.3rem; }
+
 
 .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; }
 .alert-error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
@@ -180,7 +178,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
 .custom-select-popup {
   position: absolute; top: 105%; left: 0; right: 0; z-index: 100;
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(15,23,42,0.1); overflow: hidden;
+  box-shadow: 0 4px 16px rgba(15,23,42,0.1);
 }
 .custom-select-search {
   width: 100%; padding: 0.5rem 0.75rem; border: none; border-bottom: 1px solid var(--border);
@@ -245,10 +243,9 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
 .login-brand { font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 0.25rem; }
 .login-brand span { color: var(--primary); }
 .login-sub { text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
-.login-hint { font-size: 0.8rem; color: var(--text-muted); }
+
 
 /* ---------- Utility ---------- */
 .text-muted { color: var(--text-muted); }
 .text-danger { color: var(--danger); }
-.text-right { text-align: right; }
-.mt-1 { margin-top: 1rem; }
+
