@@ -25,26 +25,25 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $id = (int) ($_POST['id'] ?? 0);
-$kode = trim($_POST['kode'] ?? '');
 $nama = trim($_POST['nama'] ?? '');
 $model = trim($_POST['model'] ?? '');
+$lokasi = trim($_POST['lokasi'] ?? '');
 $kategori = trim($_POST['kategori'] ?? '');
 $satuan = trim($_POST['satuan'] ?? '') ?: 'Unit';
-$stokMin = max(0, (int) ($_POST['stok_min'] ?? 0));
 $kondisi = in_array($_POST['kondisi'] ?? '', ['baik', 'rusak', 'servis'], true) ? $_POST['kondisi'] : 'baik';
 
 if ($id <= 0) {
     redirectWithError('Barang tidak ditemukan');
 }
-if ($kode === '' || $nama === '') {
-    redirectWithError('Kode dan nama barang wajib diisi');
+if ($nama === '') {
+    redirectWithError('Nama barang wajib diisi');
 }
 
 try {
     $stmt = $db->prepare(
-        'UPDATE barang SET kode=?, nama=?, model=?, kategori=?, satuan=?, stok_min=?, kondisi=? WHERE id=?'
+        'UPDATE barang SET nama=?, model=?, lokasi=?, kategori=?, satuan=?, kondisi=? WHERE id=?'
     );
-    $stmt->execute([$kode, $nama, $model, $kategori, $satuan, $stokMin, $kondisi, $id]);
+    $stmt->execute([$nama, $model, $lokasi, $kategori, $satuan, $kondisi, $id]);
 
     header('Location: master_barang.php');
     exit;
