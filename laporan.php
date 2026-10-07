@@ -45,6 +45,12 @@ require __DIR__ . '/includes/layout_start.php';
         <input type="text" name="q" class="search-box" placeholder="Cari nama, kode, model..." value="<?= e($search) ?>">
         <input type="hidden" name="sort" value="<?= e($sort) ?>">
         <button type="submit" class="btn btn-secondary">Cari</button>
+        <div style="display:flex;align-items:center;gap:0.4rem;margin-left:auto">
+            <input type="date" id="pdfFrom" value="<?= date('Y-m-01') ?>" style="padding:0.45rem 0.6rem;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:0.85rem">
+            <span style="font-size:0.85rem;color:var(--text-muted)">s/d</span>
+            <input type="date" id="pdfTo" value="<?= date('Y-m-d') ?>" style="padding:0.45rem 0.6rem;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:0.85rem">
+            <button type="button" class="btn btn-primary" onclick="exportPdf()">⬇ Export PDF</button>
+        </div>
         <div class="custom-select-wrap" style="min-width:160px">
             <button type="button" class="custom-select-trigger" onclick="toggleCustomSelect('popupSort', this)">
                 <span>Urutan: <strong><?= $sort === 'kode' ? 'Kode' : 'Nama' ?></strong></span>
@@ -94,5 +100,13 @@ function pilihSort(val) {
     const url = new URL(window.location.href);
     url.searchParams.set('sort', val);
     window.location.href = url.toString();
+
+}
+function exportPdf() {
+    const from = document.getElementById('pdfFrom').value;
+    const to = document.getElementById('pdfTo').value;
+    if (!from || !to) { alert('Pilih periode terlebih dahulu.'); return; }
+    if (from > to) { alert('Tanggal awal tidak boleh lebih dari tanggal akhir.'); return; }
+    window.location.href = 'export_pdf.php?from=' + from + '&to=' + to;
 }
 </script>
